@@ -27,6 +27,11 @@ defmodule CtxServerSample.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    ctx_server = if Mix.env == :dev do
+      System.get_env("HOME") <> "/CtxServer"
+    else
+      "git@github.com:psg-titech/CtxServer.git"
+    end
+    [{:ctx_server, git: ctx_server}]
   end
 end

@@ -8,6 +8,7 @@ defmodule CtxServerSample do
 
     children = [
       worker(CtxServerSample.Plugstarter, []),
+      worker(CtxServerSample.TestServer, [TestServer]),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

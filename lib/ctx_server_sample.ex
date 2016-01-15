@@ -1,57 +1,18 @@
 defmodule CtxServerSample do
-  use CtxServer
+  use Application
 
-  defmacro debug_info(request) do
-    quote do
-      {name, arity} = __ENV__.function
-      IO.puts """
-      CALL: #{name}/#{arity}
-        request: #{unquote(request)},
-        contexts: #{inspect CtxServer.Contexts.current}
-      """
-    end
+  # See http://elixir-lang.org/docs/stable/elixir/Application.html
+  # for more information on OTP Applications
+  def start(_type, _args) do
+    import Supervisor.Spec, warn: false
+
+    children = [
+      worker(CtxServerSample.Plugstarter, []),
+    ]
+
+    # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
+    # for other strategies and supported options
+    opts = [strategy: :one_for_one, name: CtxServerSample.Supervisor]
+    Supervisor.start_link(children, opts)
   end
-
-  context login: true, payment: :normal do
-    def handle_cast(request, state) do
-      debug_info(request)
-      {:noreply, state}
-    end
-
-    def handle_call(request, _, state) do
-      debug_info(request)
-      {:reply, request, state}
-    end
-  end
-
-  context login: true, payment: :abnormal do
-    def handle_cast(request, state) do
-      debug_info(request)
-      {:noreply, state}
-    end
-
-    def handle_call(request, _, state) do
-      debug_info(request)
-      {:reply, request, state}
-    end
-  end
-
-  def handle_cast(request, state) do
-    debug_info(request)
-    {:noreply, state}
-  end
-
-  def handle_call(request, from, state) do
-    debug_info(request)
-    {:reply, request, state}
-  end
-end
-
-
-quote do
-  # CtxServer.switch_context :login, true
-  {:ok, pid} = CtxServer.start(CtxServerSample, [])
-  CtxServer.Contexts.update login: true, payment: :normal
-  CtxServer.cast(pid, :foo)
-  CtxServer.call(pid, :foo)
 end

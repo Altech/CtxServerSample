@@ -7,13 +7,12 @@ defmodule CtxServerSample do
     import Supervisor.Spec, warn: false
 
     children = [
-      # Define workers and child supervisors to be supervised
-      # worker(SimplePlug.Worker, [arg1, arg2, arg3]),
+      worker(CtxServerSample.Plugstarter, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: SimplePlug.Supervisor]
+    opts = [strategy: :one_for_one, name: CtxServerSample.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

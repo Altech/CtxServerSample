@@ -14,7 +14,10 @@ defmodule CtxServerSample.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger]]
+    [
+      applications: [:logger],
+      mod: {CtxServerSample, []}
+    ]
   end
 
   # Dependencies can be Hex packages:
@@ -32,6 +35,10 @@ defmodule CtxServerSample.Mixfile do
     else
       "git@github.com:psg-titech/CtxServer.git"
     end
-    [{:ctx_server, git: ctx_server}]
+    [
+      {:ctx_server, git: ctx_server},
+      {:cowboy, "~> 1.0.0"},
+      {:plug, "~> 0.12"},
+    ]
   end
 end

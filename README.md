@@ -1,6 +1,7 @@
 # CtxServerSample
 
-**TODO: Add description**
+- https://github.com/psg-titech/CtxServer/issues/6#issuecomment-160952368
+- https://github.com/psg-titech/CtxServer/issues/8
 
 ## Installation
 

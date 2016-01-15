@@ -1,6 +1,10 @@
 defmodule CtxServerSample.TestServer do
   use CtxServer
 
+  def start_link(name) do
+    CtxServer.start_link(__MODULE__, name, name: name)
+  end
+
   defmacro debug_info(request) do
     quote do
       {name, arity} = __ENV__.function

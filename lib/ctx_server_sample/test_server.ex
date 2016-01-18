@@ -2,6 +2,7 @@ defmodule CtxServerSample.TestServer do
   use CtxServer
 
   alias CtxServerSample.User
+  alias CtxServerSample.Item
 
   def start_link(name) do
     CtxServer.start_link(__MODULE__, name, name: name)
@@ -9,6 +10,7 @@ defmodule CtxServerSample.TestServer do
 
   def init(_) do
     User.init
+    Item.init
     {:ok, nil}
   end
 
@@ -80,6 +82,18 @@ defmodule CtxServerSample.TestServer do
     else
       {:reply, {"Failed to login with @#{user_id}", user_id}, state}
     end
+  end
+
+  def handle_call({:get, :items}, _, state) do
+    use Eml.HTML
+    dom = html do
+      ul do
+        for [name, price] <- Item.all do
+          li "#{name} #{price}$"
+        end
+      end
+    end
+    {:reply, dom |> Eml.compile, state}
   end
 
   context login: true, payment: :normal do

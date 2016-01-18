@@ -54,8 +54,8 @@ defmodule CtxServerSample.Router do
   end
   
   get "/items" do
-    #
-    send_resp(conn, 200, "")
+    reply = CtxServer.call(TestServer, {:get, :items})
+    send_resp(conn, 200, reply)
   end
 
   post "/purchase" do

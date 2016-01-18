@@ -38,7 +38,8 @@ defmodule CtxServerSample.Mixfile do
     [
       {:ctx_server, git: ctx_server},
       {:cowboy, "~> 1.0.0"},
-      {:plug, "~> 0.12"},
+      {:plug, "~> 1.1.0"},
+      {:eml, git: "https://github.com/zambal/eml.git"},
     ]
   end
 end

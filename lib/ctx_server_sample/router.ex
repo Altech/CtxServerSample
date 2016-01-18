@@ -1,23 +1,21 @@
 defmodule CtxServerSample.Router do
   use Plug.Router
-  require Logger
+
+  plug Plug.Parsers, parsers: [:urlencoded]
+  plug Plug.Session, store: :ets, key: "_ctx_sever", table: :session
 
   # plug Plug.Logger
   plug :match
   plug :dispatch
 
   def init(options) do
-    # initialize your options here
-
-    options
+    :ets.new(:session, [:named_table, :public])
   end
 
-
-  get "/" do
-    # Get the parameters
-    conn = fetch_query_params(conn)
-
-    send_resp(conn, 200, "received #{inspect(conn.params)}")
+  get "/pry" do
+    require IEx
+    IEx.pry
+    send_resp(conn, 200, "IEx.pry")
   end
 
   get "test_server" do
@@ -29,6 +27,42 @@ defmodule CtxServerSample.Router do
     CtxServer.cast(TestServer, fetch_query_params(conn).params)
     send_resp(conn, 200, "Success to cast TestServer")
   end
+
+  get "/" do
+    conn = fetch_session(conn)
+    reply = CtxServer.call(TestServer, {:get, :root, fetch_query_params(conn).params, %{user_id: get_session(conn, :user_id)}})
+    send_resp(conn, 200, reply)
+  end
+
+  get "/login" do
+    IO.puts "get-login"
+    reply = CtxServer.call(TestServer, {:get, :login, fetch_query_params(conn).params})
+    send_resp(conn, 200, reply)
+  end
+
+  post "/login" do
+    {html, user} = CtxServer.call(TestServer, {:post, :login, fetch_query_params(conn).params})
+    conn = fetch_session(conn)
+    conn = put_session(conn, :user_id, user)
+    send_resp(conn, 200, html)
+  end
+
+  get "/logout" do
+    conn = fetch_session(conn)
+    conn = delete_session(conn, :user_id)
+    send_resp(conn, 200, "Success to logout")
+  end
+  
+  get "/items" do
+    #
+    send_resp(conn, 200, "")
+  end
+
+  post "/purchase" do
+    # item_ids
+    send_resp(conn, 200, "")
+  end
+
 
   match _ do
     IO.inspect(conn.params)

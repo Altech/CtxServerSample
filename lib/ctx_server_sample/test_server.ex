@@ -1,8 +1,15 @@
 defmodule CtxServerSample.TestServer do
   use CtxServer
 
+  alias CtxServerSample.User
+
   def start_link(name) do
     CtxServer.start_link(__MODULE__, name, name: name)
+  end
+
+  def init(_) do
+    User.init
+    {:ok, nil}
   end
 
   defmacro debug_info(request) do
@@ -13,6 +20,65 @@ defmodule CtxServerSample.TestServer do
         request: #{inspect unquote(request)},
         contexts: #{inspect CtxServer.Contexts.current}
       """
+    end
+  end
+
+  def handle_call({:get, :root, _, %{user_id: user_id}}, _, state) do
+    use Eml.HTML
+    links = ~w[login logout items]
+    dom = html do
+      ul do
+        for link <- links do
+          li do
+            %Eml.Element{tag: :a, attrs: %{href: link}, content: link}
+          end
+        end
+      end
+      if user_id do
+        p "You are @#{user_id}"
+      end
+    end
+    {:reply, dom |> Eml.compile, state}
+  end
+
+  def handle_call({:get, :login, _}, _, state) do
+    use Eml.HTML
+    dom = html do
+      form method: "POST", action: "login" do
+        p do
+          "User ID: "
+          input type: "text", name: "user_id"
+        end
+        p do
+          "Password: "
+          input type: "password", name: "password"
+        end
+        p do
+          "Register as a new user: "
+          input type: "checkbox", name: "new", value: "true"
+        end
+        p do
+          input type: "submit", value: "Submit"
+        end
+      end
+    end
+    {:reply, dom |> Eml.compile, state}
+  end
+
+  def handle_call({:post, :login, params}, _, state) do
+    use Eml.HTML
+    user_id = params["user_id"]
+    password = params["password"]
+    new = params["new"] == "true"
+    success = if new do
+      User.register_with_password(user_id, password)
+    else
+      User.login_with_password(user_id, password)
+    end
+    if success do
+      {:reply, {"Successed to login with @#{user_id}", user_id}, state}
+    else
+      {:reply, {"Failed to login with @#{user_id}", user_id}, state}
     end
   end
 

@@ -38,13 +38,15 @@ defmodule CtxServerSample.TestServer do
     end
   end
 
-  def handle_cast(request, state) do
-    IO.puts debug_info(request)
-    {:noreply, state}
-  end
+  context :any do
+    def handle_cast(request, state) do
+      IO.puts debug_info(request)
+      {:noreply, state}
+    end
 
-  def handle_call(request, from, state) do
-    {:reply, debug_info(request), state}
+    def handle_call(request, from, state) do
+      {:reply, debug_info(request), state}
+    end
   end
 end
 

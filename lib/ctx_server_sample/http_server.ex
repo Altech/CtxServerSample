@@ -15,8 +15,8 @@ defmodule CtxServerSample.HTTPServer do
 
   # # Request Handlers
 
-  alias CtxServerSample.User
-  alias CtxServerSample.Item
+  alias CtxServerSample.Models.User
+  alias CtxServerSample.Models.Item
 
   defp handle_call({"GET", "/"}, {_, session_params}) do
     user_id = session_params.user_id

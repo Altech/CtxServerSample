@@ -8,6 +8,7 @@ defmodule CtxServerSample.HTTPServer do
   end
 
   def handle_call({method, request_path, params, session_params}, _, _) do
+    Process.put(:session_instructions, [])
     html = handle_call({method, request_path}, {params, session_params})
     instructions = Enum.reverse(List.wrap(Process.get(:session_instructions)))
     {:reply, {html, instructions}, nil}

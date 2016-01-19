@@ -1,19 +1,25 @@
 defmodule CtxServerSample.Purchase do
-  @tab :purchase
+  use Ecto.Schema
 
-  # # Schema
-  # {purchase_id: Number, user_id: ByteString, item_ids: List<Number>, created_at: Time}
-
-  def init do
-    :ets.new(@tab, [:named_table, :public])
+  schema "tests" do
+    # field :id, :integer
+    field :name, :string
+    # field :purchase_id, :integer,
+    # field :user_id, :string,
+    # field :item_id, :integer
+    # field :created_at,
   end
 
-  def new(user_id, item_ids) do
-    {1, user_id, item_ids, now()}
-  end
+  # def init do
+  #   :ets.new(@tab, [:named_table, :public])
+  # end
 
-  defp now do
-    :os.timestamp |> :calendar.now_to_datetime
-  end
+  # def new(user_id, item_ids) do
+  #   {1, user_id, item_ids, now()}
+  # end
+
+  # defp now do
+  #   :os.timestamp |> :calendar.now_to_datetime
+  # end
   
 end

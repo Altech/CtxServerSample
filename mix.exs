@@ -12,7 +12,7 @@ defmodule CtxServerSample.Mixfile do
 
   def application do
     [
-      applications: [:logger],
+      applications: [:logger, :ecto, :postgrex],
       mod: {CtxServerSample, []}
     ]
   end
@@ -28,6 +28,7 @@ defmodule CtxServerSample.Mixfile do
       {:cowboy, "~> 1.0.0"}, # HTTP Server
       {:plug, "~> 1.1.0"}, # Functional HTTP Processing
       {:eml, git: "https://github.com/zambal/eml.git"}, # HTML Template Engine
+      {:postgrex, ">= 0.0.0"},
       {:ecto, "~> 1.1"}, # Database wrapper
     ]
   end

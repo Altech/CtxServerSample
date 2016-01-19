@@ -15,9 +15,9 @@ defmodule CtxServerSample.Router do
   post "/login" do
     conn = fetch_session(conn)
     session_params = %{user_id: get_session(conn, :user_id)}
-    reply = CtxServer.call(TestServer, {conn.method, conn.request_path, fetch_query_params(conn).params, session_params})
+    reply = CtxServer.call(HTTPServer, {conn.method, conn.request_path, fetch_query_params(conn).params, session_params})
 
-    # Extension [TODO] Manipulate session via controllers
+    # Extension [TODO] Manipulate session in HTTPServer
     screen_name = conn.params["screen_name"]
     user = CtxServerSample.User.find_by_screen_name(screen_name) 
     if user do
@@ -42,7 +42,7 @@ defmodule CtxServerSample.Router do
   match _ do
     conn = fetch_session(conn)
     session_params = %{user_id: get_session(conn, :user_id)}
-    reply = CtxServer.call(TestServer, {conn.method, conn.request_path, fetch_query_params(conn).params, session_params})
+    reply = CtxServer.call(HTTPServer, {conn.method, conn.request_path, fetch_query_params(conn).params, session_params})
     send_resp(conn, 200, reply)
   end
 

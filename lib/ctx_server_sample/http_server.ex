@@ -1,4 +1,4 @@
-defmodule CtxServerSample.TestServer do
+defmodule CtxServerSample.HTTPServer do
   use CtxServer
 
   alias CtxServerSample.User

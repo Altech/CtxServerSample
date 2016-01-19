@@ -1,6 +1,7 @@
 defmodule CtxServerSample.Templates.Macro do
   defmacro eval_eml do
-    ast = for path <- Path.wildcard(__DIR__ <> "/*.eml") do
+    # [TODO] Mix doesn't new eml file, so currently we must recompile explicitly.
+    for path <- Path.wildcard(__DIR__ <> "/*.eml") do
       {:ok, code} = File.read(path)
       {dom, _} = Code.eval_string("""
       quote do
@@ -15,7 +16,5 @@ defmodule CtxServerSample.Templates.Macro do
         end
       end
     end
-    IO.puts Macro.to_string(ast)
-    ast
   end
 end

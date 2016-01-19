@@ -8,50 +8,29 @@ defmodule CtxServerSample.TestServer do
     CtxServer.start_link(__MODULE__, name, name: name)
   end
 
-  def handle_call({:get, :root, _, %{user_id: user_id}}, _, state) do
-    use Eml.HTML
-    links = ~w[login logout items]
-    dom = html do
-      ul do
-        for link <- links do
-          li do
-            %Eml.Element{tag: :a, attrs: %{href: link}, content: link}
-          end
-        end
-      end
-      if user_id do
-        p "You are @#{User.find_by_id(user_id).screen_name}"
-      end
-    end
-    {:reply, dom |> Eml.compile, state}
+  def handle_call({method, request_path, params, session_params}, _, _) do
+    html = handle_call({method, request_path}, {params, session_params})
+    {:reply, html, nil}
   end
 
-  def handle_call({:get, :login, _}, _, state) do
-    use Eml.HTML
-    dom = html do
-      form method: "POST", action: "login" do
-        p do
-          "User ID: "
-          input type: "text", name: "screen_name"
-        end
-        p do
-          "Password: "
-          input type: "password", name: "password"
-        end
-        p do
-          "Register as a new user: "
-          input type: "checkbox", name: "new", value: "true"
-        end
-        p do
-          input type: "submit", value: "Submit"
-        end
-      end
-    end
-    {:reply, dom |> Eml.compile, state}
+  def render(name, vars \\ []) do
+    vars = for {k,v} <- vars, into: %{}, do: {k,v}
+    apply(CtxServerSample.Templates, name, [vars]) |> Eml.compile
   end
 
-  def handle_call({:post, :login, params}, _, state) do
-    use Eml.HTML
+  # # Request Handling
+
+  def handle_call({"GET", "/"}, {_, session_params}) do
+    user_id = session_params.user_id
+    screen_name = user_id && User.find_by_id(user_id).screen_name
+    render :root, links: ~w[login logout items], screen_name: screen_name
+  end
+
+  def handle_call({"GET", "/login"}, _) do
+    render :login_get
+  end
+
+  def handle_call({"POST", "/login"}, {params, _}) do
     screen_name = params["screen_name"]
     password = params["password"]
     new = params["new"] == "true"
@@ -60,32 +39,15 @@ defmodule CtxServerSample.TestServer do
     else
       User.check_password(screen_name, password)
     end
-    if success do
-      user_id = User.find_by_screen_name(screen_name).id
-      {:reply, {"Successed to login with @#{screen_name}", user_id}, state}
+    user_id = if success do
+      User.find_by_screen_name(screen_name).id
     else
-      {:reply, {"Failed to login with @#{screen_name}", nil}, state}
+      nil
     end
+    render :login_post, screen_name: screen_name, user_id: user_id
   end
 
-  def handle_call({:get, :items}, _, state) do
-    use Eml.HTML
-    dom = html do
-      table do
-        tr do
-          th "Title"
-          th "Description"
-          th "Price"
-        end
-        for item <- Item.first(20) do
-          tr do
-            td item.title
-            td item.description
-            td "#{item.price/100}$"
-          end
-        end
-      end
-    end
-    {:reply, dom |> Eml.compile, state}
+  def handle_call({"GET", "/items"}, _) do
+    render :items, items: Item.first(20)
   end
 end

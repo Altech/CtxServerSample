@@ -1,0 +1,19 @@
+html do
+  form method: "POST", action: "login" do
+    p do
+      "User ID: "
+      input type: "text", name: "screen_name"
+    end
+    p do
+      "Password: "
+      input type: "password", name: "password"
+    end
+    p do
+      "Register as a new user: "
+      input type: "checkbox", name: "new", value: "true"
+    end
+    p do
+      input type: "submit", value: "Submit"
+    end
+  end
+end

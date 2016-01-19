@@ -12,39 +12,19 @@ defmodule CtxServerSample.Router do
     :ets.new(:session, [:named_table, :public])
   end
 
-  get "/pry" do
-    require IEx
-    IEx.pry
-    send_resp(conn, 200, "IEx.pry")
-  end
-
-  get "test_server" do
-    reply = CtxServer.call(TestServer, fetch_query_params(conn).params)
-    send_resp(conn, 200 , "Success to call TestServer\n\n#{reply}")
-  end
-
-  get "test_server_post" do # This should be `post "test_server"`
-    CtxServer.cast(TestServer, fetch_query_params(conn).params)
-    send_resp(conn, 200, "Success to cast TestServer")
-  end
-
-  get "/" do
-    conn = fetch_session(conn)
-    reply = CtxServer.call(TestServer, {:get, :root, fetch_query_params(conn).params, %{user_id: get_session(conn, :user_id)}})
-    send_resp(conn, 200, reply)
-  end
-
-  get "/login" do
-    IO.puts "get-login"
-    reply = CtxServer.call(TestServer, {:get, :login, fetch_query_params(conn).params})
-    send_resp(conn, 200, reply)
-  end
-
   post "/login" do
-    {html, user_id} = CtxServer.call(TestServer, {:post, :login, fetch_query_params(conn).params})
     conn = fetch_session(conn)
-    conn = put_session(conn, :user_id, user_id)
-    send_resp(conn, 200, html)
+    session_params = %{user_id: get_session(conn, :user_id)}
+    reply = CtxServer.call(TestServer, {conn.method, conn.request_path, fetch_query_params(conn).params, session_params})
+
+    # Extension [TODO] Manipulate session via controllers
+    screen_name = conn.params["screen_name"]
+    user = CtxServerSample.User.find_by_screen_name(screen_name) 
+    if user do
+      conn = put_session(conn, :user_id, user.id)
+    end
+
+    send_resp(conn, 200, reply)
   end
 
   get "/logout" do
@@ -53,20 +33,17 @@ defmodule CtxServerSample.Router do
     send_resp(conn, 200, "Success to logout")
   end
   
-  get "/items" do
-    reply = CtxServer.call(TestServer, {:get, :items})
-    send_resp(conn, 200, reply)
+  get "/pry" do # For debug
+    require IEx
+    IEx.pry
+    send_resp(conn, 200, "IEx.pry")
   end
-
-  post "/purchase" do
-    # item_ids
-    send_resp(conn, 200, "")
-  end
-
 
   match _ do
-    IO.inspect(conn.params)
-    send_resp(conn, 404, "oops")
+    conn = fetch_session(conn)
+    session_params = %{user_id: get_session(conn, :user_id)}
+    reply = CtxServer.call(TestServer, {conn.method, conn.request_path, fetch_query_params(conn).params, session_params})
+    send_resp(conn, 200, reply)
   end
 
 end

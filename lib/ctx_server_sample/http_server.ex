@@ -1,9 +1,6 @@
 defmodule CtxServerSample.HTTPServer do
   use CtxServer
 
-  alias CtxServerSample.User
-  alias CtxServerSample.Item
-
   # # Public Interface
 
   def start_link(name) do
@@ -17,6 +14,9 @@ defmodule CtxServerSample.HTTPServer do
   end
 
   # # Request Handlers
+
+  alias CtxServerSample.User
+  alias CtxServerSample.Item
 
   defp handle_call({"GET", "/"}, {_, session_params}) do
     user_id = session_params.user_id

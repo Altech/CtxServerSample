@@ -9,7 +9,7 @@ defmodule CtxServerSample.Purchase do
   end
 
   def new(user_id, item_ids) do
-    {index, user_id, item_ids, now()}
+    {1, user_id, item_ids, now()}
   end
 
   defp now do

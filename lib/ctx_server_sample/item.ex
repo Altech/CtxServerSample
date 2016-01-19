@@ -13,7 +13,7 @@ defmodule CtxServerSample.Item do
       {4, "Garaxy", 100},
     ]
     for item <- items do
-      :ets.insert(:items, items)
+      :ets.insert(:items, item)
     end
   end
 

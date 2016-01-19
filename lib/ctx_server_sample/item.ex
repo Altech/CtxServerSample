@@ -1,6 +1,9 @@
 defmodule CtxServerSample.Item do
   @tab :items
 
+  # # Schema
+  # {item_id: Number, item_name: ByteString, Price: Number}
+
   def init do
     :ets.new(@tab, [:named_table, :public])
     items = [

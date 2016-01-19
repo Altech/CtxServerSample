@@ -1,6 +1,9 @@
 defmodule CtxServerSample.User do
   @tab :users
 
+  # # Schema
+  # {user_id: ByteString, password: ByteString}
+
   def init do
     :ets.new(@tab, [:named_table, :public])
   end

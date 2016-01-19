@@ -21,3 +21,14 @@ CREATE TABLE users (
 );
 CREATE INDEX ON users (id);
 CREATE INDEX ON users (screen_name);
+
+CREATE TABLE purchases (
+       id serial,
+       item_id integer,
+       user_id integer,
+       inserted_at timestamp,
+       updated_at timestamp
+);
+CREATE INDEX ON purchases (id);
+CREATE INDEX ON purchases (item_id);
+CREATE INDEX ON purchases (user_id);

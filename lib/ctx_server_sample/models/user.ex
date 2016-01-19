@@ -7,6 +7,7 @@ defmodule CtxServerSample.Models.User do
   schema "users" do
     field :screen_name, :string
     field :password_digest, :binary
+    has_many :purchases, CtxServerSample.Models.Purchase
   end
 
   def create(screen_name, password) do

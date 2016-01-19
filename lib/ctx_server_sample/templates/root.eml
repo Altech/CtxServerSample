@@ -1,0 +1,14 @@
+html do
+  ul do
+    for link <- vars.links do
+      li do
+        %Eml.Element{tag: :a, attrs: %{href: link}, content: link}
+      end
+    end
+  end
+  if vars.screen_name do
+    p do
+      "You are @#{vars.screen_name}"
+    end
+  end
+end

@@ -1,0 +1,7 @@
+html do
+  if vars.user_id do
+    p "Successed to login with @#{vars.screen_name}"
+  else
+    p "Failed to login with @#{vars.screen_name}"
+  end
+end

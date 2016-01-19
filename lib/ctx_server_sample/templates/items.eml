@@ -1,0 +1,16 @@
+html do
+  table do
+    tr do
+      th "Title"
+      th "Description"
+      th "Price"
+    end
+    for item <- vars.items do
+      tr do
+        td item.title
+        td item.description
+        td "#{item.price/100}$"
+      end
+    end
+  end
+end

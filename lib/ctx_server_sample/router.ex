@@ -1,38 +1,31 @@
 defmodule CtxServerSample.Router do
   use Plug.Router
-  require Logger
+
+  plug Plug.Parsers, parsers: [:urlencoded]
+  plug Plug.Session, store: :ets, key: "_ctx_sever", table: :session
 
   # plug Plug.Logger
   plug :match
   plug :dispatch
 
   def init(options) do
-    # initialize your options here
-
-    options
+    :ets.new(:session, [:named_table, :public])
   end
-
-
-  get "/" do
-    # Get the parameters
-    conn = fetch_query_params(conn)
-
-    send_resp(conn, 200, "received #{inspect(conn.params)}")
-  end
-
-  get "test_server" do
-    reply = CtxServer.call(TestServer, fetch_query_params(conn).params)
-    send_resp(conn, 200 , "Success to call TestServer\n\n#{reply}")
-  end
-
-  get "test_server_post" do # This should be `post "test_server"`
-    CtxServer.cast(TestServer, fetch_query_params(conn).params)
-    send_resp(conn, 200, "Success to cast TestServer")
+  
+  get "/pry" do # For debug
+    require IEx
+    IEx.pry
+    send_resp(conn, 200, "IEx.pry")
   end
 
   match _ do
-    IO.inspect(conn.params)
-    send_resp(conn, 404, "oops")
+    conn = fetch_session(conn)
+    session_params = %{user_id: get_session(conn, :user_id)}
+    {html, is} = CtxServer.call(HTTPServer, {conn.method, conn.request_path, fetch_query_params(conn).params, session_params})
+    for {name, args} <- is do
+      apply(Plug.Conn, name, [conn|args])
+    end
+    send_resp(conn, 200, html)
   end
 
 end

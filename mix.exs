@@ -10,25 +10,13 @@ defmodule CtxServerSample.Mixfile do
      deps: deps]
   end
 
-  # Configuration for the OTP application
-  #
-  # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger],
+      applications: [:logger, :ecto, :postgrex],
       mod: {CtxServerSample, []}
     ]
   end
 
-  # Dependencies can be Hex packages:
-  #
-  #   {:mydep, "~> 0.3.0"}
-  #
-  # Or git/path repositories:
-  #
-  #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1.0"}
-  #
-  # Type "mix help deps" for more examples and options
   defp deps do
     ctx_server = if Mix.env == :dev do
       System.get_env("HOME") <> "/CtxServer"
@@ -36,9 +24,12 @@ defmodule CtxServerSample.Mixfile do
       "git@github.com:psg-titech/CtxServer.git"
     end
     [
-      {:ctx_server, git: ctx_server},
-      {:cowboy, "~> 1.0.0"},
-      {:plug, "~> 0.12"},
+      {:ctx_server, git: ctx_server}, # Context-Aware GenServer
+      {:cowboy, "~> 1.0.0"}, # HTTP Server
+      {:plug, "~> 1.1.0"}, # Functional HTTP Processing
+      {:eml, git: "https://github.com/zambal/eml.git"}, # HTML Template Engine
+      {:postgrex, ">= 0.0.0"}, # Postgres Connector
+      {:ecto, "~> 1.1"}, # Database Wrapper
     ]
   end
 end

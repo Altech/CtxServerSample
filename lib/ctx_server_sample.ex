@@ -7,8 +7,9 @@ defmodule CtxServerSample do
     import Supervisor.Spec, warn: false
 
     children = [
+      supervisor(CtxServerSample.Repo, []),
       worker(CtxServerSample.Plugstarter, []),
-      worker(CtxServerSample.TestServer, [TestServer]),
+      worker(CtxServerSample.HTTPServer, [HTTPServer]),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

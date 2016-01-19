@@ -4,18 +4,31 @@ defmodule CtxServerSample.HTTPServer do
   alias CtxServerSample.User
   alias CtxServerSample.Item
 
+  @session :session_instructions
+
   def start_link(name) do
     CtxServer.start_link(__MODULE__, name, name: name)
   end
 
   def handle_call({method, request_path, params, session_params}, _, _) do
     html = handle_call({method, request_path}, {params, session_params})
-    {:reply, html, nil}
+    instructions = Enum.reverse(List.wrap(Process.get(@session)))
+    {:reply, {html, instructions}, nil}
   end
 
   def render(name, vars \\ []) do
     vars = for {k,v} <- vars, into: %{}, do: {k,v}
     apply(CtxServerSample.Templates, name, [vars]) |> Eml.compile
+  end
+
+  def put_session(key, value) do
+    list = List.wrap(Process.get(@session))
+    Process.put(@session, [{:put_session, [key, value]}|list])
+  end
+
+  def delete_session(key) do
+    list = List.wrap(Process.get(@session))
+    Process.put(@session, [{:delete_session, [key]}|list])
   end
 
   # # Request Handling
@@ -44,7 +57,15 @@ defmodule CtxServerSample.HTTPServer do
     else
       nil
     end
+    if success do
+      put_session(:user_id, user_id)
+    end
     render :login_post, screen_name: screen_name, user_id: user_id
+  end
+
+  def handle_call({"GET", "/logout"}, _) do
+    delete_session(:user_id)
+    render :logout
   end
 
   def handle_call({"GET", "/items"}, _) do

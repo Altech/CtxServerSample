@@ -1,0 +1,14 @@
+html do
+  head do
+    script type: "text/javascript" do
+      """
+      setTimeout(function(){
+        document.location = window.location.origin
+      }, 2000)
+      """
+    end
+  end
+  body do
+    p "Success to logout. \nNow, redirect to root..."
+  end
+end

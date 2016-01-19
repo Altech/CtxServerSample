@@ -41,9 +41,9 @@ defmodule CtxServerSample.Router do
   end
 
   post "/login" do
-    {html, user} = CtxServer.call(TestServer, {:post, :login, fetch_query_params(conn).params})
+    {html, user_id} = CtxServer.call(TestServer, {:post, :login, fetch_query_params(conn).params})
     conn = fetch_session(conn)
-    conn = put_session(conn, :user_id, user)
+    conn = put_session(conn, :user_id, user_id)
     send_resp(conn, 200, html)
   end
 

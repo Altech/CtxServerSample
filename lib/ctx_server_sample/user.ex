@@ -1,28 +1,45 @@
 defmodule CtxServerSample.User do
-  @tab :users
+  use Ecto.Schema
 
-  # # Schema
-  # {user_id: ByteString, password: ByteString}
+  alias CtxServerSample.Repo
 
-  def init do
-    :ets.new(@tab, [:named_table, :public])
+  schema "users" do
+    field :screen_name, :string
+    field :password_digest, :binary
   end
 
-  def login_with_password(user_id, password) do
-    case :ets.lookup(@tab, user_id) do
-      [] -> false
-      {user_id, hashed_password} -> hashed_password == hash(password)
+  def create(screen_name, password) do
+    if alreadly_exists?(screen_name) do
+      false
+    else
+      user = %__MODULE__{screen_name: screen_name, password_digest: digest(password)}
+      Repo.insert(user)
     end
   end
 
-  def register_with_password(user_id, password) do
-    case :ets.lookup(@tab, user_id) do
-      [] -> :ets.insert(@tab, {user_id, hash(password)})
-      _ -> false
+  def check_password(screen_name, password) do
+    user = find_by_screen_name(screen_name)
+    if user do
+      user.password_digest == digest(password)
+    else
+      false
     end
   end
 
-  defp hash(password) do
+  defp alreadly_exists?(screen_name) do
+    !!find_by_screen_name(screen_name)
+  end
+
+  def find_by_screen_name(screen_name) do
+    import Ecto.Query, only: [from: 2]
+    Repo.one(from u in __MODULE__, where: u.screen_name == ^screen_name)
+  end
+
+  def find_by_id(id) do
+    Repo.get __MODULE__, id
+  end
+
+  defp digest(password) do
     :crypto.hash(:sha, password)
   end
 end

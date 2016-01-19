@@ -28,8 +28,8 @@ defmodule CtxServerSample.Mixfile do
       {:cowboy, "~> 1.0.0"}, # HTTP Server
       {:plug, "~> 1.1.0"}, # Functional HTTP Processing
       {:eml, git: "https://github.com/zambal/eml.git"}, # HTML Template Engine
-      {:postgrex, ">= 0.0.0"},
-      {:ecto, "~> 1.1"}, # Database wrapper
+      {:postgrex, ">= 0.0.0"}, # Postgres Connector
+      {:ecto, "~> 1.1"}, # Database Wrapper
     ]
   end
 end

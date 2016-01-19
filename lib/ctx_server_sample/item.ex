@@ -1,23 +1,9 @@
 defmodule CtxServerSample.Item do
-  @tab :items
+  use Ecto.Schema
 
-  # # Schema
-  # {item_id: Number, item_name: ByteString, Price: Number}
-
-  def init do
-    :ets.new(@tab, [:named_table, :public])
-    items = [
-      {1, "iPad 16GB", 400},
-      {2, "iPhone 32GB", 800},
-      {3, "Nexsus", 300},
-      {4, "Garaxy", 100},
-    ]
-    for item <- items do
-      :ets.insert(:items, item)
-    end
-  end
-
-  def all do
-    :ets.match(@tab, {:_, :"$2", :"$3"})
+  schema "items" do
+    field :title, :string
+    field :description, :string
+    field :price, :integer
   end
 end

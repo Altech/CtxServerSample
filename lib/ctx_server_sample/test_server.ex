@@ -8,12 +8,6 @@ defmodule CtxServerSample.TestServer do
     CtxServer.start_link(__MODULE__, name, name: name)
   end
 
-  def init(_) do
-    User.init
-    Item.init
-    {:ok, nil}
-  end
-
   defmacro debug_info(request) do
     quote do
       {name, arity} = __ENV__.function
@@ -37,7 +31,7 @@ defmodule CtxServerSample.TestServer do
         end
       end
       if user_id do
-        p "You are @#{user_id}"
+        p "You are @#{User.find_by_id(user_id).screen_name}"
       end
     end
     {:reply, dom |> Eml.compile, state}
@@ -49,7 +43,7 @@ defmodule CtxServerSample.TestServer do
       form method: "POST", action: "login" do
         p do
           "User ID: "
-          input type: "text", name: "user_id"
+          input type: "text", name: "screen_name"
         end
         p do
           "Password: "
@@ -69,18 +63,19 @@ defmodule CtxServerSample.TestServer do
 
   def handle_call({:post, :login, params}, _, state) do
     use Eml.HTML
-    user_id = params["user_id"]
+    screen_name = params["screen_name"]
     password = params["password"]
     new = params["new"] == "true"
     success = if new do
-      User.register_with_password(user_id, password)
+      !!User.create(screen_name, password)
     else
-      User.login_with_password(user_id, password)
+      User.check_password(screen_name, password)
     end
     if success do
-      {:reply, {"Successed to login with @#{user_id}", user_id}, state}
+      user_id = User.find_by_screen_name(screen_name).id
+      {:reply, {"Successed to login with @#{screen_name}", user_id}, state}
     else
-      {:reply, {"Failed to login with @#{user_id}", user_id}, state}
+      {:reply, {"Failed to login with @#{screen_name}", nil}, state}
     end
   end
 

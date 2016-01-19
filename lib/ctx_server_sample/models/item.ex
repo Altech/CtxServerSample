@@ -1,6 +1,7 @@
-defmodule CtxServerSample.Item do
+defmodule CtxServerSample.Models.Item do
   use Ecto.Schema
-  alias CtxServerSample.Item
+
+  alias __MODULE__
   alias CtxServerSample.Repo
 
   schema "items" do

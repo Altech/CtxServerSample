@@ -1,6 +1,7 @@
 defmodule CtxServerSample.User do
   use Ecto.Schema
 
+  alias CtxServerSample.User
   alias CtxServerSample.Repo
 
   schema "users" do
@@ -12,7 +13,7 @@ defmodule CtxServerSample.User do
     if alreadly_exists?(screen_name) do
       false
     else
-      user = %__MODULE__{screen_name: screen_name, password_digest: digest(password)}
+      user = %User{screen_name: screen_name, password_digest: digest(password)}
       Repo.insert(user)
     end
   end
@@ -32,11 +33,11 @@ defmodule CtxServerSample.User do
 
   def find_by_screen_name(screen_name) do
     import Ecto.Query, only: [from: 2]
-    Repo.one(from u in __MODULE__, where: u.screen_name == ^screen_name)
+    Repo.one(from u in User, where: u.screen_name == ^screen_name)
   end
 
   def find_by_id(id) do
-    Repo.get __MODULE__, id
+    Repo.get User, id
   end
 
   defp digest(password) do

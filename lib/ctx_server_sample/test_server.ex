@@ -82,9 +82,18 @@ defmodule CtxServerSample.TestServer do
   def handle_call({:get, :items}, _, state) do
     use Eml.HTML
     dom = html do
-      ul do
-        for [name, price] <- Item.all do
-          li "#{name} #{price}$"
+      table do
+        tr do
+          th "Title"
+          th "Description"
+          th "Price"
+        end
+        for item <- Item.first(20) do
+          tr do
+            td item.title
+            td item.description
+            td "#{item.price/100}$"
+          end
         end
       end
     end

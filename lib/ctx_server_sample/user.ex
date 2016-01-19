@@ -6,8 +6,6 @@ defmodule CtxServerSample.User do
   end
 
   def login_with_password(user_id, password) do
-    require IEx
-    IEx.pry
     case :ets.lookup(@tab, user_id) do
       [] -> false
       {user_id, hashed_password} -> hashed_password == hash(password)

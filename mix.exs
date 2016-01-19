@@ -40,6 +40,7 @@ defmodule CtxServerSample.Mixfile do
       {:cowboy, "~> 1.0.0"},
       {:plug, "~> 1.1.0"},
       {:eml, git: "https://github.com/zambal/eml.git"},
+      {:timex, "~> 1.0.0"},
     ]
   end
 end

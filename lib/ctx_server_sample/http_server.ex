@@ -19,17 +19,17 @@ defmodule CtxServerSample.HTTPServer do
   alias CtxServerSample.Models.User
   alias CtxServerSample.Models.Item
 
-  defp handle_call({"GET", "/"}, {_, session_params}) do
+  def handle_call({"GET", "/"}, {_, session_params}) do
     user_id = session_params.user_id
     screen_name = user_id && User.find_by_id(user_id).screen_name
     render :root, links: ~w[login logout items], screen_name: screen_name
   end
 
-  defp handle_call({"GET", "/login"}, _) do
+  def handle_call({"GET", "/login"}, _) do
     render :login_get
   end
 
-  defp handle_call({"POST", "/login"}, {params, _}) do
+  def handle_call({"POST", "/login"}, {params, _}) do
     screen_name = params["screen_name"]
     password = params["password"]
     new = params["new"] == "true"
@@ -49,13 +49,21 @@ defmodule CtxServerSample.HTTPServer do
     render :login_post, screen_name: screen_name, user_id: user_id
   end
 
-  defp handle_call({"GET", "/logout"}, _) do
+  def handle_call({"GET", "/logout"}, _) do
     delete_session(:user_id)
     render :logout
   end
 
-  defp handle_call({"GET", "/items"}, _) do
+  def handle_call({"GET", "/items"}, _) do
     render :items, items: Item.first(20)
+  end
+
+  def handle_call({"POST", "/purchase"}, {params, session_params}) do
+    if session_params.user_id do
+      "Purchased #{Item.find_by_id(params["item_id"]).title}!"
+    else
+      "Please login before purchase"
+    end
   end
 
   # # Web Application Utilities

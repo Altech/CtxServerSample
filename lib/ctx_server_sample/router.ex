@@ -4,18 +4,11 @@ defmodule CtxServerSample.Router do
   plug Plug.Parsers, parsers: [:urlencoded]
   plug Plug.Session, store: :ets, key: "_ctx_sever", table: :session
 
-  # plug Plug.Logger
   plug :match
   plug :dispatch
 
   def init(options) do
     :ets.new(:session, [:named_table, :public])
-  end
-  
-  get "/pry" do # For debug
-    require IEx
-    IEx.pry
-    send_resp(conn, 200, "IEx.pry")
   end
 
   match _ do
@@ -27,5 +20,4 @@ defmodule CtxServerSample.Router do
     end
     send_resp(conn, 200, html)
   end
-
 end

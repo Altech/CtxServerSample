@@ -28,7 +28,7 @@ defmodule CtxServerSample.Mixfile do
       {:cowboy, "~> 1.0.0"}, # HTTP Server
       {:plug, "~> 1.1.0"}, # Functional HTTP Processing
       {:eml, git: "https://github.com/zambal/eml.git"}, # HTML Template Engine
-      {:ecto, "~> 2.0.0-dev", git: "https://github.com/elixir-lang/ecto.git"}, # Database wrapper
+      {:ecto, "~> 1.1"}, # Database wrapper
     ]
   end
 end

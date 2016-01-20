@@ -8,6 +8,11 @@ defmodule CtxServerSample.Models.Item do
     field :title, :string
     field :description, :string
     field :price, :integer
+    has_many :purchases, CtxServerSample.Models.Purchase
+  end
+
+  def find_by_id(id) do
+    Repo.get Item, id
   end
 
   def first(n) do

@@ -1,15 +1,24 @@
 html do
-  table do
-    tr do
-      th "Title"
-      th "Description"
-      th "Price"
-    end
-    for item <- vars.items do
+  form method: "POST", action: "purchase" do
+    table do
       tr do
-        td item.title
-        td item.description
-        td "#{item.price/100}$"
+        th ""
+        th "Title"
+        th "Description"
+        th "Price"
+      end
+      for item <- vars.items do
+        tr do
+          td do
+            input type: "radio", name: "item_id", value: item.id
+          end
+          td item.title
+          td item.description
+          td "#{item.price/100}$"
+        end
+      end
+      tr do
+        td input type: "submit", value: "Submit"
       end
     end
   end

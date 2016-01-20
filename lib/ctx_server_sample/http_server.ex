@@ -7,9 +7,11 @@ defmodule CtxServerSample.HTTPServer do
     CtxServer.start_link(__MODULE__, name, name: name)
   end
 
-  def handle_call({method, request_path, params, session_params}, _, _) do
+  def handle_call({method, request_path, params, session}, _, _) do
+    switch_context(:login, !!session.user_id)
     Process.put(:session_instructions, [])
-    html = handle_call({method, request_path}, {params, session_params})
+    Process.put(:current_user_id, session.user_id)
+    html = handle({method, request_path}, params)
     instructions = Enum.reverse(List.wrap(Process.get(:session_instructions)))
     {:reply, {html, instructions}, nil}
   end
@@ -19,49 +21,54 @@ defmodule CtxServerSample.HTTPServer do
   alias CtxServerSample.Models.User
   alias CtxServerSample.Models.Item
 
-  def handle_call({"GET", "/"}, {_, session_params}) do
-    user_id = session_params.user_id
-    screen_name = user_id && User.find_by_id(user_id).screen_name
-    render :root, links: ~w[login logout items], screen_name: screen_name
-  end
-
-  def handle_call({"GET", "/login"}, _) do
-    render :login_get
-  end
-
-  def handle_call({"POST", "/login"}, {params, _}) do
-    screen_name = params["screen_name"]
-    password = params["password"]
-    new = params["new"] == "true"
-    success = if new do
-      !!User.create(screen_name, password)
-    else
-      User.check_password(screen_name, password)
+  context :any do
+    def handle({"GET", "/"}, _params) do
+      screen_name = current_user && current_user.screen_name
+      render :root, links: ~w[login logout items], screen_name: screen_name
     end
-    user_id = if success do
-      User.find_by_screen_name(screen_name).id
-    else
-      nil
+
+    def handle({"GET", "/login"}, _params) do
+      render :login_get
     end
-    if success do
-      put_session(:user_id, user_id)
+
+    def handle({"POST", "/login"}, params) do
+      screen_name = params["screen_name"]
+      password = params["password"]
+      new = params["new"] == "true"
+      success = if new do
+        !!User.create(screen_name, password)
+      else
+        User.check_password(screen_name, password)
+      end
+      user_id = if success do
+        User.find_by_screen_name(screen_name).id
+      else
+        nil
+      end
+      if success do
+        put_session(:user_id, user_id)
+      end
+      render :login_post, screen_name: screen_name, user_id: user_id
     end
-    render :login_post, screen_name: screen_name, user_id: user_id
+
+    def handle({"GET", "/logout"}, _) do
+      delete_session(:user_id)
+      render :logout
+    end
+
+    def handle({"GET", "/items"}, _) do
+      render :items, items: Item.first(20)
+    end
   end
 
-  def handle_call({"GET", "/logout"}, _) do
-    delete_session(:user_id)
-    render :logout
-  end
-
-  def handle_call({"GET", "/items"}, _) do
-    render :items, items: Item.first(20)
-  end
-
-  def handle_call({"POST", "/purchase"}, {params, session_params}) do
-    if session_params.user_id do
+  context login: true do
+    def handle({"POST", "/purchase"}, params) do
       "Purchased #{Item.find_by_id(params["item_id"]).title}!"
-    else
+    end
+  end
+   
+  context login: false do
+    def handle({"POST", "/purchase"}, _) do
       "Please login before purchase"
     end
   end
@@ -81,5 +88,14 @@ defmodule CtxServerSample.HTTPServer do
   defp delete_session(key) do
     list = List.wrap(Process.get(:session_instructions))
     Process.put(:session_instructions, [{:delete_session, [key]}|list])
+  end
+
+  defp current_user do
+    id = Process.get(:current_user_id)
+    if id do
+      user = User.find_by_id(id)
+    else
+      nil
+    end
   end
 end

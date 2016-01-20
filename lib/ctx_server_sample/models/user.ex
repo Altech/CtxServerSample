@@ -38,7 +38,7 @@ defmodule CtxServerSample.Models.User do
   end
 
   def find_by_id(id) do
-    Repo.get User, id
+    id && Repo.get(User, id)
   end
 
   defp digest(password) do

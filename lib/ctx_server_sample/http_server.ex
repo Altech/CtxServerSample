@@ -20,6 +20,10 @@ defmodule CtxServerSample.HTTPServer do
     {:reply, {html, instructions}, nil}
   end
 
+  defp current_user do
+    context(:current_user)
+  end
+
   # # Request Handlers
 
   context login: true do
@@ -52,10 +56,9 @@ defmodule CtxServerSample.HTTPServer do
     end
 
     def handle({"POST", "/login"}, params) do
-      IO.puts "Check:#{User.check_password(params["screen_name"], params["password"]) }"
-      user = if User.check_password(params["screen_name"], params["password"]) do
-               User.find_by_screen_name(params["screen_name"])
-             end
+      if User.check_password(params["screen_name"], params["password"]) do
+        user = User.find_by_screen_name(params["screen_name"])
+      end
       if user do
         put_session(:user_id, user.id)
       end
@@ -87,9 +90,5 @@ defmodule CtxServerSample.HTTPServer do
     def handle({"GET", "/items"}, _) do
       render :items, items: Item.first(20)
     end
-  end
-
-  defp current_user do
-    context(:current_user)
   end
 end

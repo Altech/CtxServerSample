@@ -1,6 +1,8 @@
 defmodule CtxServerSample.HTTPServer do
   use CtxServer
 
+  import CtxServerSample.HTTPServerUtils
+
   alias CtxServerSample.Models.User
   alias CtxServerSample.Models.Item
   alias CtxServerSample.Models.Purchase
@@ -11,11 +13,10 @@ defmodule CtxServerSample.HTTPServer do
     CtxServer.start_link(__MODULE__, name, name: name)
   end
 
-  def handle_call({method, request_path, params, session}, _, _) do
-    Process.put(:session_instructions, [])
-    switch_context(:current_user, User.find_by_id(session.user_id))
-    html = handle({method, request_path}, params)
-    instructions = Enum.reverse(List.wrap(Process.get(:session_instructions)))
+  def handle_call({method, request_path, params}, _, _) do
+    {html, instructions} = save_session_instructions do
+      handle({method, request_path}, params)
+    end
     {:reply, {html, instructions}, nil}
   end
 
@@ -86,23 +87,6 @@ defmodule CtxServerSample.HTTPServer do
     def handle({"GET", "/items"}, _) do
       render :items, items: Item.first(20)
     end
-  end
-
-  # # Web Application Utilities
-
-  defp render(name, vars \\ []) do
-    vars = for {k,v} <- vars, into: %{}, do: {k,v}
-    apply(CtxServerSample.Templates, name, [vars]) |> Eml.compile
-  end
-
-  defp put_session(key, value) do
-    list = List.wrap(Process.get(:session_instructions))
-    Process.put(:session_instructions, [{:put_session, [key, value]}|list])
-  end
-
-  defp delete_session(key) do
-    list = List.wrap(Process.get(:session_instructions))
-    Process.put(:session_instructions, [{:delete_session, [key]}|list])
   end
 
   defp current_user do

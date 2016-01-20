@@ -22,11 +22,11 @@ html do
     p do
       "Country: "
       select name: "Country" do
-        option value: "us" do
-          "United States of America"
-        end
         option value: "ja" do
           "Japan"
+        end
+        option value: "us" do
+          "United States of America"
         end
       end
     end

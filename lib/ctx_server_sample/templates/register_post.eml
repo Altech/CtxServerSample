@@ -1,0 +1,7 @@
+html do
+  if vars.user do
+    p "Successed to register with @#{vars.user.screen_name}"
+  else
+    p "Failed to register."
+  end
+end

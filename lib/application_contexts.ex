@@ -11,7 +11,15 @@ defmodule ApplicationContexts do
 
   defcontext :language do
     if context(:current_user) do
-      "en" # context(:current_user).language
+      context(:current_user).language
+    else
+      "en"
+    end
+  end
+
+  defcontext :country do
+    if context(:current_user) do
+      context(:current_user).country
     else
       "ja"
     end

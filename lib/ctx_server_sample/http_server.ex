@@ -20,34 +20,37 @@ defmodule CtxServerSample.HTTPServer do
 
   # # Request Handlers
 
+  context login: true do
+    def handle({"POST", "/purchase"}, params) do
+      "Purchased #{Item.find_by_id(params["item_id"]).title}!"
+    end
+  end
+
+  context login: false do
+    def handle({"POST", "/purchase"}, _) do
+      "Please login before purchase"
+    end
+  end
+
   context :any do
-    def handle({"GET", "/"}, _params) do
+    def handle({"GET", "/"}, _) do
       screen_name = current_user && current_user.screen_name
-      render :root, links: ~w[login logout items], screen_name: screen_name
+      render :root, links: ~w[login logout register items], screen_name: screen_name
     end
 
-    def handle({"GET", "/login"}, _params) do
+    def handle({"GET", "/login"}, _) do
       render :login_get
     end
 
     def handle({"POST", "/login"}, params) do
-      screen_name = params["screen_name"]
-      password = params["password"]
-      new = params["new"] == "true"
-      success = if new do
-        !!User.create(screen_name, password)
-      else
-        User.check_password(screen_name, password)
+      IO.puts "Check:#{User.check_password(params["screen_name"], params["password"]) }"
+      user = if User.check_password(params["screen_name"], params["password"]) do
+               User.find_by_screen_name(params["screen_name"])
+             end
+      if user do
+        put_session(:user_id, user.id)
       end
-      user_id = if success do
-        User.find_by_screen_name(screen_name).id
-      else
-        nil
-      end
-      if success do
-        put_session(:user_id, user_id)
-      end
-      render :login_post, screen_name: screen_name, user_id: user_id
+      render :login_post, user: user
     end
 
     def handle({"GET", "/logout"}, _) do
@@ -55,20 +58,23 @@ defmodule CtxServerSample.HTTPServer do
       render :logout
     end
 
+    def handle({"GET", "/register"}, _) do
+      render :register_get
+    end
+
+    def handle({"POST", "/register"}, params) do
+      res = User.insert(params["screen_name"], params["password"], language: params["language"], country: params["country"])
+      user = case res do
+               {:ok, user} ->
+                 put_session(:user_id, user.id)
+                 user
+               {:error, _} -> nil
+             end
+      render :register_post, user: user
+    end
+
     def handle({"GET", "/items"}, _) do
       render :items, items: Item.first(20)
-    end
-  end
-
-  context login: true do
-    def handle({"POST", "/purchase"}, params) do
-      "Purchased #{Item.find_by_id(params["item_id"]).title}!"
-    end
-  end
-   
-  context login: false do
-    def handle({"POST", "/purchase"}, _) do
-      "Please login before purchase"
     end
   end
 

@@ -7,14 +7,21 @@ defmodule CtxServerSample.Models.User do
   schema "users" do
     field :screen_name, :string
     field :password_digest, :binary
+    field :language, :string
+    field :country, :string
     has_many :purchases, CtxServerSample.Models.Purchase
   end
 
-  def create(screen_name, password) do
+  def insert(screen_name, password, opts \\ []) do
     if alreadly_exists?(screen_name) do
       false
     else
-      user = %User{screen_name: screen_name, password_digest: digest(password)}
+      user = %User{
+        screen_name: screen_name,
+        password_digest: digest(password),
+        language: opts[:language] || "en",
+        country: opts[:country] || "us"
+      }
       Repo.insert(user)
     end
   end

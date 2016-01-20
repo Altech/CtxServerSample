@@ -3,6 +3,7 @@ defmodule CtxServerSample.HTTPServer do
 
   alias CtxServerSample.Models.User
   alias CtxServerSample.Models.Item
+  alias CtxServerSample.Models.Purchase
 
   # # Public Interface
 
@@ -21,21 +22,28 @@ defmodule CtxServerSample.HTTPServer do
   # # Request Handlers
 
   context login: true do
+    def handle({"GET", "/register"}, _) do
+      "You are alreadly logined with @#{current_user.screen_name}"
+    end
+
+    def handle({"GET", "/login"}, _) do
+      "You are alreadly logined with @#{current_user.screen_name}"
+    end
+
+    def handle({"GET", "/logout"}, _) do
+      delete_session(:user_id)
+      render :logout
+    end
+
     def handle({"POST", "/purchase"}, params) do
+      {:ok, purchase} = Purchase.insert(current_user.id, String.to_integer(params["item_id"]))
       "Purchased #{Item.find_by_id(params["item_id"]).title}!"
     end
   end
 
   context login: false do
-    def handle({"POST", "/purchase"}, _) do
-      "Please login before purchase"
-    end
-  end
-
-  context :any do
-    def handle({"GET", "/"}, _) do
-      screen_name = current_user && current_user.screen_name
-      render :root, links: ~w[login logout register items], screen_name: screen_name
+    def handle({"GET", "/register"}, _) do
+      render :register_get
     end
 
     def handle({"GET", "/login"}, _) do
@@ -53,15 +61,6 @@ defmodule CtxServerSample.HTTPServer do
       render :login_post, user: user
     end
 
-    def handle({"GET", "/logout"}, _) do
-      delete_session(:user_id)
-      render :logout
-    end
-
-    def handle({"GET", "/register"}, _) do
-      render :register_get
-    end
-
     def handle({"POST", "/register"}, params) do
       res = User.insert(params["screen_name"], params["password"], language: params["language"], country: params["country"])
       user = case res do
@@ -71,6 +70,17 @@ defmodule CtxServerSample.HTTPServer do
                {:error, _} -> nil
              end
       render :register_post, user: user
+    end
+
+    def handle({"POST", "/purchase"}, _) do
+      "<html>Please <a href='login'>login</a> before purchase</html>"
+    end
+  end
+
+  context :any do
+    def handle({"GET", "/"}, _) do
+      screen_name = current_user && current_user.screen_name
+      render :root, links: ~w[login logout register items], screen_name: screen_name
     end
 
     def handle({"GET", "/items"}, _) do

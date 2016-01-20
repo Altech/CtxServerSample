@@ -10,7 +10,7 @@ defmodule CtxServerSample.Models.Purchase do
     timestamps
   end
 
-  def create(user_id, item_id) do
+  def insert(user_id, item_id) do
     purchase = %Purchase{user_id: user_id, item_id: item_id}
     Repo.insert(purchase)
   end

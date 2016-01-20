@@ -1,0 +1,37 @@
+html do
+  form method: "POST", action: "register" do
+    p do
+      "User ID: "
+      input type: "text", name: "screen_name"
+    end
+    p do
+      "Password: "
+      input type: "password", name: "password"
+    end
+    p do
+      "Language: "
+      select name: "language" do
+        option value: "en" do
+          "English"
+        end
+        option value: "ja" do
+          "Japanese"
+        end
+      end
+    end
+    p do
+      "Country: "
+      select name: "Country" do
+        option value: "ja" do
+          "Japan"
+        end
+        option value: "us" do
+          "United States of America"
+        end
+      end
+    end
+    p do
+      input type: "submit", value: "Submit"
+    end
+  end
+end

@@ -9,10 +9,6 @@ html do
       input type: "password", name: "password"
     end
     p do
-      "Register as a new user: "
-      input type: "checkbox", name: "new", value: "true"
-    end
-    p do
       input type: "submit", value: "Submit"
     end
   end

@@ -18,8 +18,8 @@ defmodule CtxServerSample.ProxyServer do
 
     match _ do
       conn = fetch_session(conn)
-      session_params = %{user_id: get_session(conn, :user_id)}
-      {html, is} = CtxServer.call(HTTPServer, {conn.method, conn.request_path, fetch_query_params(conn).params, session_params})
+      CtxServer.switch_context(:current_user, CtxServerSample.Models.User.find_by_id(get_session(conn, :user_id)))
+      {html, is} = CtxServer.call(HTTPServer, {conn.method, conn.request_path, fetch_query_params(conn).params})
       conn = Enum.reduce(is, conn, fn ({name, args}, acc) ->
         apply(Plug.Conn, name, [conn|args])
       end)

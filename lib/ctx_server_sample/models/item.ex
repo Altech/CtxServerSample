@@ -12,7 +12,7 @@ defmodule CtxServerSample.Models.Item do
   end
 
   def find_by_id(id) do
-    Repo.get Item, id
+    id && Repo.get(Item, id)
   end
 
   def first(n) do

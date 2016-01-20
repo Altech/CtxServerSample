@@ -17,7 +17,10 @@ CREATE INDEX ON items (id);
 CREATE TABLE users (
        id serial,
        screen_name varchar(255),
-       password_digest bytea
+       password_digest bytea,
+       -- preferences
+       language varchar(25),
+       country varchar(25)
 );
 CREATE INDEX ON users (id);
 CREATE INDEX ON users (screen_name);

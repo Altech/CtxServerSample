@@ -1,6 +1,9 @@
 defmodule CtxServerSample.HTTPServer do
   use CtxServer
 
+  alias CtxServerSample.Models.User
+  alias CtxServerSample.Models.Item
+
   # # Public Interface
 
   def start_link(name) do
@@ -8,18 +11,14 @@ defmodule CtxServerSample.HTTPServer do
   end
 
   def handle_call({method, request_path, params, session}, _, _) do
-    switch_context(:login, !!session.user_id)
     Process.put(:session_instructions, [])
-    Process.put(:current_user_id, session.user_id)
+    switch_context(:current_user, User.find_by_id(session.user_id))
     html = handle({method, request_path}, params)
     instructions = Enum.reverse(List.wrap(Process.get(:session_instructions)))
     {:reply, {html, instructions}, nil}
   end
 
   # # Request Handlers
-
-  alias CtxServerSample.Models.User
-  alias CtxServerSample.Models.Item
 
   context :any do
     def handle({"GET", "/"}, _params) do
@@ -91,11 +90,6 @@ defmodule CtxServerSample.HTTPServer do
   end
 
   defp current_user do
-    id = Process.get(:current_user_id)
-    if id do
-      user = User.find_by_id(id)
-    else
-      nil
-    end
+    context(:current_user)
   end
 end
